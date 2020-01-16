@@ -8,6 +8,7 @@ import static io.restassured.RestAssured.given;
 public class TagApi {
     final static String ip = "https://qyapi.weixin.qq.com";
     final static String token = Login.getLogin().getToken();
+
     public Response create(String tagname){
         // {"tagname": "UI","tagid": 12}
         HashMap<String, Object> postData = new HashMap<>();
@@ -86,7 +87,7 @@ public class TagApi {
         return addTagUsers(postData);
     }
 
-    public Response addTagUsers(String tagid, Integer[] partylist){
+    public Response addTagUsers(Integer tagid, Integer[] partylist){
         HashMap<String, Object> postData = new HashMap<>();
         postData.put("tagid", tagid);
         postData.put("partylist", partylist);
@@ -100,9 +101,11 @@ public class TagApi {
                 given()
                         .queryParam("access_token", token)
                         .body(postData)
-                        .when()
-                        .get(url)
-                        .then()
+                        .log().all()
+                .when()
+                        .post(url)
+                .then()
+                        .log().all()
                         .statusCode(200)
                         .extract().response();
     }
@@ -136,9 +139,9 @@ public class TagApi {
                 given()
                         .queryParam("access_token", token)
                         .body(postData)
-                        .when()
+                .when()
                         .get(url)
-                        .then()
+                .then()
                         .statusCode(200)
                         .extract().response();
     }

@@ -3,8 +3,8 @@ package service.tag.testCase;
 import io.restassured.response.Response;
 import org.junit.Assert;
 import org.junit.Test;
+import service.department.api.DepartApi;
 import service.tag.api.TagApi;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Random;
@@ -13,7 +13,8 @@ import static org.hamcrest.Matchers.equalTo;
 
 
 public class TagTestCase {
-    TagApi ta = new TagApi();
+    public static TagApi ta = new TagApi();
+    public static DepartApi da = new DepartApi();
 
     @Test
     public void createTag(){
@@ -28,8 +29,7 @@ public class TagTestCase {
         rData.then().body("errmsg", equalTo("created"));
         int tagId = rData.body().path("tagid");
         // 查询tag是否创建成功
-        Response tl = ta.tagList().then().log().all().extract().response();
-        ArrayList ob = tl.body().path("taglist");
+        ArrayList ob = (ArrayList) ta.tagList().body().path("taglist");
         Boolean result = false;
         for(Object i : ob){
             LinkedHashMap aa = (LinkedHashMap) i;
@@ -102,9 +102,30 @@ public class TagTestCase {
                 .body("tagname",equalTo(tagName.toString()));
     }
 
+    public static void publicTagElement(){
+        // 产生随机depart名称
+        Random rr = new Random();
+        StringBuilder departName = new StringBuilder();
+        for(int i=0;i<15;i++){
+            departName.append((char)(65 + rr.nextInt(26)));
+        }
+        Response daData = da.create(departName.toString());
+        daData.then().body("errmsg", equalTo("created"));
+        int daId = daData.body().path("id");
+        Integer[] partylist = new Integer[1];
+        partylist[0] = daId;
+        // 创建tag
+        Response rData = ta.create(departName.toString());
+        rData.then().body("errmsg", equalTo("created"));
+        int tagId = rData.body().path("tagid");
+        // 标签添加元素--部门
+        Response response = ta.addTagUsers(tagId, partylist);
+        response.then().body("errmsg", equalTo("ok"));
+    }
+
     @Test
     public void addTagElement(){
-
+        publicTagElement();
     }
 
     @Test
@@ -114,6 +135,6 @@ public class TagTestCase {
 
     @Test
     public void getTagList(){
-
+        ta.tagList().then().body("errmsg", equalTo("ok"));
     }
 }
