@@ -110,7 +110,7 @@ public class TagApi {
                         .extract().response();
     }
 
-    public Response delTagUsers(String tagid, String[] userlist, Integer[] partylist){
+    public Response delTagUsers(Integer tagid, String[] userlist, Integer[] partylist){
         HashMap<String, Object> postData = new HashMap<>();
         postData.put("tagid", tagid);
         postData.put("userlist", userlist);
@@ -118,14 +118,14 @@ public class TagApi {
         return delTagUsers(postData);
     }
 
-    public Response delTagUsers(String tagid, String[] userlist){
+    public Response delTagUsers(Integer tagid, String[] userlist){
         HashMap<String, Object> postData = new HashMap<>();
         postData.put("tagid", tagid);
         postData.put("userlist", userlist);
         return delTagUsers(postData);
     }
 
-    public Response delTagUsers(String tagid, Integer[] partylist){
+    public Response delTagUsers(Integer tagid, Integer[] partylist){
         HashMap<String, Object> postData = new HashMap<>();
         postData.put("tagid", tagid);
         postData.put("partylist", partylist);
@@ -139,8 +139,9 @@ public class TagApi {
                 given()
                         .queryParam("access_token", token)
                         .body(postData)
+                        .log().all()
                 .when()
-                        .get(url)
+                        .post(url)
                 .then()
                         .statusCode(200)
                         .extract().response();
@@ -155,6 +156,7 @@ public class TagApi {
                 .when()
                         .get(url)
                 .then()
+                        .log().all()
                         .statusCode(200)
                         .extract().response();
     }

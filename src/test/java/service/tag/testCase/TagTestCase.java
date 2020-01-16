@@ -60,8 +60,8 @@ public class TagTestCase {
         }
         ta.update(newTagName.toString(), tagId)
                 .then()
-                .log().all()
-                .body("errmsg", equalTo("updated"));
+                    .log().all()
+                    .body("errmsg", equalTo("updated"));
     }
 
     @Test
@@ -102,8 +102,8 @@ public class TagTestCase {
                 .body("tagname",equalTo(tagName.toString()));
     }
 
-    public static void publicTagElement(){
-        // 产生随机depart名称
+    public static Object[] publicTagElement(){
+        /* 产生随机depart名称 */
         Random rr = new Random();
         StringBuilder departName = new StringBuilder();
         for(int i=0;i<15;i++){
@@ -121,20 +121,44 @@ public class TagTestCase {
         // 标签添加元素--部门
         Response response = ta.addTagUsers(tagId, partylist);
         response.then().body("errmsg", equalTo("ok"));
+        //
+        Object[] allList = new Object[2];
+        allList[0] = tagId;
+        allList[1] = partylist;
+        return allList;
     }
 
     @Test
     public void addTagElement(){
+        //
         publicTagElement();
     }
 
     @Test
     public void deleteTagElement(){
+        // tag添加element
+        Object[] objectList = publicTagElement();
+        int tagId = (Integer) objectList[0];
+        Integer[] partylist = (Integer[]) objectList[1];
+        // tag删除element
+        Response rs = ta.delTagUsers(tagId, partylist);
+        rs.then().log().all();
+        rs.then().body("errmsg",equalTo("deleted"));
+    }
 
+    @Test
+    public void deleteAllTag(){
+        //
+        Response rs = ta.tagList();
+        ArrayList<LinkedHashMap> tl = (ArrayList<LinkedHashMap>) rs.body().path("taglist");
+        for(LinkedHashMap i :tl){
+            ta.delete(i.get("tagid").toString()).then().body("errmsg",equalTo("deleted"));
+        }
     }
 
     @Test
     public void getTagList(){
+        //
         ta.tagList().then().body("errmsg", equalTo("ok"));
     }
 }
